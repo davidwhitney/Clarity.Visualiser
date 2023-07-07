@@ -4,10 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsx src/index.ts --run",
-    "start:web": "run-p web:server",
+    "prepare": "cd api && npm install",
+    "start": "run-p web:api web:server",
+    "start:cli": "tsx src/index.ts --run",
+    "web:api": "npm run start --prefix api",
     "web:server": "npx vite serve",
-    "test": "vitest --run"
+    "test": "npm run test:app && npm run test:api",
+    "test:app": "vitest run",
+    "test:api": "cd api && vitest run",
+    "build:azure": "npx vite build"
   },
   "author": "",
   "license": "ISC",

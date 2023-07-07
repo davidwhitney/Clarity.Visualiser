@@ -1,34 +1,15 @@
-import { ResourceManagementClient } from "@azure/arm-resources";
-import { SubscriptionClient } from "@azure/arm-subscriptions";
-import { DefaultAzureCredential } from "@azure/identity";
 import * as dotenv from "dotenv";
+import { DefaultAzureCredential } from "@azure/identity";
+import { DiagramBuilder } from "./diagram-builder/DiagramBuilder";
 dotenv.config();
 
 export async function main(args: Args): Promise<number> {
     console.log("Hello world!");
 
+    const credential = new DefaultAzureCredential();
+    const builder = new DiagramBuilder(credential);
 
-    // For client-side applications running in the browser, use InteractiveBrowserCredential instead of DefaultAzureCredential. See https://aka.ms/azsdk/js/identity/examples for more details.
-
-    // const subscriptionId = "00000000-0000-0000-0000-000000000000";
-    // const client = new ResourceManagementClient(new DefaultAzureCredential(), subscriptionId);
-
-    // const subsClient = new SubscriptionClient(new DefaultAzureCredential());
-    // const subscriptions = subsClient.subscriptions.list();
-
-    // for await (const subscription of subscriptions) {
-    //     console.log(subscription.displayName);
-    // }
-
-    // For client-side applications running in the browser, use this code instead:
-    // const credential = new InteractiveBrowserCredential({
-    //   tenantId: "<YOUR_TENANT_ID>",
-    //   clientId: "<YOUR_CLIENT_ID>"
-    // });
-    // const client = new ResourceManagementClient(credential, subscriptionId);
-
-    // list all subscriptions
-    
+    await builder.build();
 
 
     return 0;
