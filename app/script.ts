@@ -1,6 +1,7 @@
 import { DefaultAzureCredential, InteractiveBrowserCredential  } from "@azure/identity";
 import { DiagramBuilder } from "../src/diagram-builder/DiagramBuilder";
 import { SubscriptionClient } from "@azure/arm-subscriptions";
+import { groupByOwner } from "../src/grouping/Grouper";
 
 console.log("Hello world!");
 
@@ -10,9 +11,14 @@ console.log("Hello world!");
 // });
 
 const result = await fetch("/api/home");
-const data = await result.json();
-console.table(data);
+const assets = await result.json();
 
+console.log(assets);
 
+const firstKey = Object.getOwnPropertyNames(assets)[0];
+const firstSub = assets[firstKey];
+const grouped = groupByOwner(firstSub);
+
+console.table(grouped);
 
 export {};

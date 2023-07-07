@@ -12,8 +12,8 @@ export async function main(args: Args): Promise<number> {
     
     const assets = await source1.collectAssets();
 
-    const firstKey = assets.keys().next().value;
-    const firstSub = assets.get(firstKey)!;
+    const firstKey = Object.getOwnPropertyNames(assets)[0];
+    const firstSub = assets[firstKey];
 
     console.log("First Sub: ", firstSub);
     console.table(firstSub);

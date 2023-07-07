@@ -16,19 +16,17 @@ export class AzureDataSource {
     
         const prodSubs = subs.filter((sub) => sub.displayName?.includes("PRD"));
     
-        const subsAndResources = new Map<string, any[]>();
+        const subsAndResources: Record<string, any> = {};
     
         for (const sub of prodSubs) {
-            subsAndResources.set(sub.subscriptionId!, []);
-    
-            console.log("Subscription: ", sub);
+            subsAndResources[sub.subscriptionId!] = [];
     
             // Get all resources in our production subscription
             const resourceClient = new ResourceManagementClient(this.credentials, sub.subscriptionId!);
             const resourcesItr = resourceClient.resources.list();
             const allResources = await listAll(resourcesItr);
     
-            subsAndResources.set(sub.subscriptionId!, allResources);
+            subsAndResources[sub.subscriptionId!] = allResources;
     
             console.log("Resources Count: " + allResources.length);
         }
