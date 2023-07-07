@@ -9,5 +9,10 @@ console.log("Hello world!");
 //     tenantId: "2a15a8b5-49d1-49bc-b63c-c7c8c87bdc57"
 // });
 
+const result = await fetch("/api/home");
+const data = await result.json();
+console.table(data);
+
+
 
 export {};

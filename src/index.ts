@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 import { DefaultAzureCredential } from "@azure/identity";
 import { AzureDataSource } from "./data-sourcing/AzureDataSource";
+import { groupByOwner } from "./grouping/Grouper";
 dotenv.config();
 
 export async function main(args: Args): Promise<number> {
@@ -12,10 +13,13 @@ export async function main(args: Args): Promise<number> {
     const assets = await source1.collectAssets();
 
     const firstKey = assets.keys().next().value;
-    const firstSub = assets.get(firstKey);
+    const firstSub = assets.get(firstKey)!;
 
     console.log("First Sub: ", firstSub);
     console.table(firstSub);
+
+    const grouped = groupByOwner(firstSub);
+    console.log(grouped);
 
 
     return 0;
