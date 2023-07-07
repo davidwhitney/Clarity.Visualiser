@@ -2,26 +2,23 @@ import * as dotenv from "dotenv";
 import { DefaultAzureCredential } from "@azure/identity";
 import { AzureDataSource } from "../../src/data-sourcing/AzureDataSource";
 import { Context, HttpRequest } from "@azure/functions";
-const { gzip } = require('node-gzip');
+import { gzip } from 'node-gzip';
 
 dotenv.config();
 
 // Hack a cheap In Memory cache in here for dev.
 
-let cache = [];
+let assets = null;
 
 export async function run(context: Context, req: HttpRequest): Promise<void> {
-    if (cache.length === 0) {
+    if (assets === null) {
       console.log("Collecting assets...");
       const credential = new DefaultAzureCredential();
-      const source = new AzureDataSource(credential);  
-
-      const assets = await source.collectAssets();
-      cache.push(assets);
+      const source = new AzureDataSource(credential);
+      assets = await source.collectAssets();
     }
 
-    const assets = cache[0];
-    const assetsAsString = JSON.stringify(assets, replacer);
+    const assetsAsString = JSON.stringify(assets);
     const compressed = await gzip(assetsAsString);
 
     context.res = {
@@ -32,16 +29,4 @@ export async function run(context: Context, req: HttpRequest): Promise<void> {
       },
       body: compressed
     };
-}
-
-
-function replacer(key, value) {
-  if(value instanceof Map) {
-    return {
-      dataType: 'Map',
-      value: Array.from(value.entries()),
-    };
-  } else {
-    return value;
-  }
 }
