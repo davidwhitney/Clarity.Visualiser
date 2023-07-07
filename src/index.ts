@@ -1,15 +1,21 @@
 import * as dotenv from "dotenv";
 import { DefaultAzureCredential } from "@azure/identity";
-import { DiagramBuilder } from "./diagram-builder/DiagramBuilder";
+import { AzureDataSource } from "./data-sourcing/AzureDataSource";
 dotenv.config();
 
 export async function main(args: Args): Promise<number> {
     console.log("Hello world!");
 
     const credential = new DefaultAzureCredential();
-    const builder = new DiagramBuilder(credential);
+    const source1 = new AzureDataSource(credential);
+    
+    const assets = await source1.collectAssets();
 
-    await builder.build();
+    const firstKey = assets.keys().next().value;
+    const firstSub = assets.get(firstKey);
+
+    console.log("First Sub: ", firstSub);
+    console.table(firstSub);
 
 
     return 0;
