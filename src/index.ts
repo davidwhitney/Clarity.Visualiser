@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 export async function main(args: Args): Promise<number> {
-
+    console.log("Hello world!");
 
     return 0;
 }

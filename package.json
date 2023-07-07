@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsx src/index.ts main --run",
+    "start": "tsx src/index.ts --run",
     "test": "vitest --run"
   },
   "author": "",
