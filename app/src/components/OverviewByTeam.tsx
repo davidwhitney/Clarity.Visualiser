@@ -3,13 +3,16 @@ import { groupByOwner } from "../../../src/grouping/Grouper";
 import { Subscription } from "./overview/Subscription";
 import "./OverviewByTeam.css"
 
-export function OverviewByTeam(props: any) {
-    const allSubscriptionData = props.data;  
-    console.log(props);
+type Props = {
+    data: AzureResourcesGroupedBySubscriptionId;
+};
+
+export function OverviewByTeam({ data }: Props) {
+    const allSubscriptionData = data;
       
     const firstKey = Object.getOwnPropertyNames(allSubscriptionData)[0];
     const firstSub = allSubscriptionData[firstKey];
-    const grouped = groupByOwner(firstSub);
+    const grouped: SingleSubscriptionGroupedByTeam = groupByOwner(firstSub);
 
     return (
         <div id="overview-page">
@@ -17,5 +20,3 @@ export function OverviewByTeam(props: any) {
         </div>
     );
 }
-
-

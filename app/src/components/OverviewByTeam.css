@@ -1,9 +1,8 @@
-#overview-page {    
+.subscription {    
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
 }
-
 
 .app {
     border: 5px solid rgba(0, 0, 0, 0.5);
@@ -28,7 +27,6 @@
 .team-components {
     display: flex;
     flex-direction: row;
-    align-items: center;
     justify-content: center;
 }
 

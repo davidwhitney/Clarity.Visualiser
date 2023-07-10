@@ -1,13 +1,27 @@
 import React from "react";
-import { TeamCollection } from "./TeamCollection";
+import { Team } from "./Team";
 
-export function Subscription(props: { subscriptionName: string; subscriptionData: any; }) {
-    const id = props.subscriptionName + "-components";
+type Props = {
+    subscriptionName: string; 
+    subscriptionData: SingleSubscriptionGroupedByTeam;
+};
+
+export function Subscription({ subscriptionName, subscriptionData }: Props) {
+    const id = subscriptionName + "-components";
+
+    const teamBoundaries = Object.keys(subscriptionData).map((teamName: string) => {
+        const data = subscriptionData[teamName];
+        return <Team teamName={teamName} teamData={data} />;
+    });
 
     return (
         <>
-            <div id={id} className="subscription-components"></div>
-            <TeamCollection data={props.subscriptionData} />
+            <h1>{subscriptionName}</h1>
+            <div className="subscription">
+                <div id={id} className="subscription-components"></div>
+                {teamBoundaries}
+            </div>
         </>
     );
 }
+

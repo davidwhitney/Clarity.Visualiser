@@ -3,13 +3,12 @@ import './App.css';
 import { OverviewByTeam } from './components/OverviewByTeam';
 
 export default function App() {
-    const [apiData, setApiData] = useState(null);
+    const [apiData, setApiData] = useState<AzureResourcesGroupedBySubscriptionId | null>(null);
 
     useEffect(() => {
         (async () => {
             const result = await fetch('/api/home');
             const data = await result.json();
-            console.log(data);
             setApiData(data);
         })();
     }, []);

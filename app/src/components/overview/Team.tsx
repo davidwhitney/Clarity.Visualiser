@@ -3,6 +3,7 @@ import { ApplicationGroup } from "./ApplicationGroup";
 
 export function Team(props: { teamName: string; teamData: any; }) {
     const id = props.teamName + "-components";
+    const componentCount = Object.keys(props.teamData).length;
 
     // group by tag "Application"
     const apps = props.teamData.reduce((acc: { [x: string]: any[]; }, cur: { tags: any; }) => {
@@ -23,8 +24,12 @@ export function Team(props: { teamName: string; teamData: any; }) {
     });
 
     return (
-        <div id={id} className="team-components">
-            {applicationGroups}
+        <div className="team-boundary">
+            <h2 role="header" className="team-boundary-header">{props.teamName} ({componentCount})</h2>
+            <br />
+            <div id={id} className="team-components">
+                {applicationGroups}
+            </div>
         </div>
     );
 }
