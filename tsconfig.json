@@ -1,6 +1,8 @@
 {
   "include": [
-    "./src/**/*.ts"
+    "./src/**/*.ts",
+    "./app/src",
+    "./src",
   ],
   "exclude": [
     "./src/**/*.test.ts",
@@ -23,8 +25,12 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "rootDir": "./src",
+    "rootDir": "./app",
     "sourceMap": true,
-    "strict": true
-  }
+    "strict": true,
+    "jsx": "react-jsx"
+  },
+  "types": [
+    "vitest/globals"
+  ]
 }
