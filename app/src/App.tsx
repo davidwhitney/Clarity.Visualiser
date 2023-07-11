@@ -3,7 +3,7 @@ import './App.css';
 import { OverviewByTeam } from './components/OverviewByTeam';
 
 export default function App() {
-    const [apiData, setApiData] = useState<AzureResourcesGroupedBySubscriptionId | null>(null);
+    const [apiData, setApiData] = useState<SubscriptionAndResources[] | null>(null);
 
     useEffect(() => {
         (async () => {

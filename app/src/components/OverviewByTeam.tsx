@@ -4,19 +4,19 @@ import { Subscription } from "./overview/Subscription";
 import "./OverviewByTeam.css"
 
 type Props = {
-    data: AzureResourcesGroupedBySubscriptionId;
+    data: SubscriptionAndResources[];
 };
 
 export function OverviewByTeam({ data }: Props) {
     const allSubscriptionData = data;
       
-    const firstKey = Object.getOwnPropertyNames(allSubscriptionData)[0];
-    const firstSub = allSubscriptionData[firstKey];
+    const subName = allSubscriptionData[0].Subscription.displayName;
+    const firstSub = allSubscriptionData[0].Resources;
     const grouped: SingleSubscriptionGroupedByTeam = groupByOwner(firstSub);
 
     return (
         <div id="overview-page">
-            <Subscription subscriptionName={firstKey} subscriptionData={grouped} />
+            <Subscription subscriptionName={subName} subscriptionData={grouped} />
         </div>
     );
 }

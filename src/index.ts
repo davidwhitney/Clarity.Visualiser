@@ -11,9 +11,7 @@ export async function main(args: Args): Promise<number> {
     const source1 = new AzureDataSource(credential);
     
     const assets = await source1.collectAssets();
-
-    const firstKey = Object.getOwnPropertyNames(assets)[0];
-    const firstSub = assets[firstKey];
+    const firstSub = assets[0].Resources;
 
     console.log("First Sub: ", firstSub);
     console.table(firstSub);

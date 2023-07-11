@@ -5,3 +5,8 @@ type AzureResourcesGroupedBySubscriptionId = {
 type SingleSubscriptionGroupedByTeam = {
     [teamName: string]: any;
 };
+
+type SubscriptionAndResources = {
+    Subscription: any;
+    Resources: any[];
+}

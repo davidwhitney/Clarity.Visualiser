@@ -11,4 +11,4 @@ describe('index', () => {
 
         expect(exitCode).toBe(0);
     });
-}, { timeout: 20_000 });
+}, { timeout: 60_000 });

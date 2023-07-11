@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 import { DefaultAzureCredential } from "@azure/identity";
-import { AzureDataSource } from "../../src/data-sourcing/AzureDataSource";
+import { AzureDataSource, SubscriptionAndResources } from "../../src/data-sourcing/AzureDataSource";
 import { Context, HttpRequest } from "@azure/functions";
 import { gzip } from 'node-gzip';
 
@@ -8,7 +8,7 @@ dotenv.config();
 
 // Hack a cheap In Memory cache in here for dev.
 
-let assets = null;
+let assets: SubscriptionAndResources[] = null;
 
 export async function run(context: Context, req: HttpRequest): Promise<void> {
     if (assets === null) {
