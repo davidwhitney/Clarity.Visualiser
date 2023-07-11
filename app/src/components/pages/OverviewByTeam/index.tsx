@@ -1,7 +1,7 @@
 import React from "react";
-import { groupByOwner } from "../../../src/grouping/Grouper";
-import { Subscription } from "./overview/Subscription";
-import "./OverviewByTeam.css"
+import { groupByOwner } from "../../../../../src/grouping/Grouper";
+import { Subscription } from "./Subscription";
+import "./index.css"
 
 type Props = {
     data: SubscriptionAndResources[];

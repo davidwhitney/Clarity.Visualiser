@@ -1,5 +1,5 @@
 import React from "react";
-import { assetTypeGlyphs, knownAssetType } from "../../metadata";
+import { assetTypeGlyphs, knownAssetType } from "../../../metadata";
 
 export function ApplicationGroup(props: {appName: string, apps: any[]}) {
     const totalResourceCount = props.apps.length;
