@@ -4,14 +4,16 @@ import { Subscription } from "./Subscription";
 import "./index.css"
 
 type Props = {
-    data: SubscriptionAndResources[];
+    subscriptionAndResources: SubscriptionAndResources | null;
 };
 
-export function OverviewByTeam({ data }: Props) {
-    const allSubscriptionData = data;
+export function OverviewByTeam({ subscriptionAndResources }: Props) {
+    if (!subscriptionAndResources) {
+        return <></>;
+    }
       
-    const subName = allSubscriptionData[0].Subscription.displayName;
-    const firstSub = allSubscriptionData[0].Resources;
+    const subName = subscriptionAndResources.Subscription.displayName;
+    const firstSub = subscriptionAndResources.Resources;
     const grouped: SingleSubscriptionGroupedByTeam = groupByOwner(firstSub);
 
     return (

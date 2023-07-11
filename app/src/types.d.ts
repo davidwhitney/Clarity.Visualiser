@@ -7,6 +7,11 @@ type SingleSubscriptionGroupedByTeam = {
 };
 
 type SubscriptionAndResources = {
-    Subscription: any;
+    Subscription: Subscription;
     Resources: any[];
+}
+
+type Subscription = {
+    subscriptionId: string;
+    displayName: string;
 }

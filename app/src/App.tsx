@@ -1,39 +1,47 @@
 import { useEffect, useState } from 'react';
-import './App.css';
 import { OverviewByTeam } from './components/pages/OverviewByTeam/index';
 import { SubscriptionSelector } from './components/elements/SubscriptionSelector';
+import { VisualisationDropdown } from './components/elements/VisualisationDropdown';
+import './App.css';
 
 export default function App() {
     const [apiData, setApiData] = useState<SubscriptionAndResources[] | null>(null);
+    const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
+    const [selectedVisualisation, setSelectedVisualisation] = useState<string>('OverviewByTeam');
 
     useEffect(() => {
         (async () => {
             const result = await fetch('/api/home');
             const data = await result.json();
             setApiData(data);
+            data.length > 0 && setSelectedSubscription(data[0].Subscription);
         })();
     }, []);
 
-    const overviewOrEmpty = apiData ? <OverviewByTeam data={apiData} /> : <div></div>;
+    const getActiveVisualisation = () => {
+        switch (selectedVisualisation) {
+            case 'OverviewByTeam':
+                return <OverviewByTeam subscriptionAndResources={selectedSub} />;
+            default:
+                return <></>;
+        }        
+    };
 
-
-    const subscriptionDropDownBox = apiData ? <div className="subscription-dropdown-box">
-        <select className="subscription-dropdown">
-            {apiData.map((subscription) => {
-                return <option key={subscription.Subscription.id}>{subscription.Subscription.displayName}</option>
-            })}
-        </select>
-    </div> : <div></div>;
-
-    const subscriptions = apiData ? apiData.map((data) => data.Subscription) : [];
+    const selectedSub = apiData?.find((data) => data.Subscription.subscriptionId === selectedSubscription?.subscriptionId) || null;
+    const subscriptions = apiData?.map((data) => data.Subscription) || [];
+    const overviewOrEmpty = apiData ? getActiveVisualisation() : <></>;
 
     return (
         <>
-        <SubscriptionSelector subscriptions={subscriptions} />
+        <header>
+            <SubscriptionSelector subscriptions={subscriptions} onSelect={setSelectedSubscription} />
+            <VisualisationDropdown onChange={setSelectedVisualisation} />
+        </header>
         <div className="App">
             {overviewOrEmpty}
         </div>
         </>
     )
 }
+
 
