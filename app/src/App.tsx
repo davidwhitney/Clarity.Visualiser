@@ -8,13 +8,23 @@ export default function App() {
     const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
     const [selectedVisualisation, setSelectedVisualisation] = useState<string>('OverviewByTeam');
 
-    useEffect(() => {
-        (async () => {
-            const result = await fetch('/api/home');
-            const data = await result.json();
-            setApiData(data);
-            data.length > 0 && setSelectedSubscription(data[0].Subscription);
-        })();
+    const updateAppData = async () => {
+        const result = await fetch('/api/home');
+        if (!result.ok) {
+            return;
+        }
+        
+        const data: SubscriptionAndResources[] = await result.json();
+        if (data.length === 0) {
+            return;
+        }
+
+        setApiData(data);
+        setSelectedSubscription(data[0].Subscription);
+    }
+
+    useEffect(() => { 
+        updateAppData(); 
     }, []);
 
     const selectedSub = apiData?.find((data) => data.Subscription.subscriptionId === selectedSubscription?.subscriptionId) || null;

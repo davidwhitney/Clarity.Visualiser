@@ -25,7 +25,7 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "rootDir": "./app",
+    "rootDir": "./",
     "sourceMap": true,
     "strict": true,
     "jsx": "react-jsx"
