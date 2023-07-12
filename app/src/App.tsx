@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { SubscriptionSelector } from './components/elements/SubscriptionSelector';
-import { VisualisationDropdown, selectVisualisation as renderVisualisation } from './components/elements/VisualisationDropdown';
+import { SubscriptionSelector } from './layout/SubscriptionSelector';
+import { VisualisationDropdown, selectVisualisation as renderVisualisation } from './layout/VisualisationDropdown';
 import './App.css';
 
 export default function App() {

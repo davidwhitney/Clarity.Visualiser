@@ -1,12 +1,12 @@
 import React from "react";
-import { groupByAppName } from "../../../../../../src/grouping/Grouper";
-import { ApplicationGroup } from "../../../elements/ApplicationGroup";
+import { groupByAppName } from "../../../../../src/grouping/Grouper";
+import { ApplicationGroup } from "../../../layout/ApplicationGroup";
 import "./index.css"
 
-type OverviewByWebAppProps = { subscriptionAndResources: SubscriptionAndResources | null; };
+type OverviewByComponentProps = { subscriptionAndResources: SubscriptionAndResources | null; };
 type SubscriptionProps = { subscriptionName: string; subscriptionData: any[]; };
 
-export function OverviewByWebApp({ subscriptionAndResources }: OverviewByWebAppProps) {
+export function OverviewByComponent({ subscriptionAndResources }: OverviewByComponentProps) {
     if (!subscriptionAndResources) {
         return <></>;
     }

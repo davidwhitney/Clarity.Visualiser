@@ -1,5 +1,5 @@
 import React from "react";
-import { assetTypeGlyphs, knownAssetType } from "../../metadata";
+import { assetTypeGlyphs, knownAssetType } from "../metadata";
 
 export function ApplicationGroup(props: {appName: string, apps: any[]}) {
     const totalResourceCount = props.apps.length;
@@ -12,7 +12,7 @@ export function ApplicationGroup(props: {appName: string, apps: any[]}) {
             return lowercaseAssetType.startsWith(lowercaseKnownAssetType);
         });
 
-        assetTypeCounts.set(assetType, recognised.length);            
+        assetTypeCounts.set(assetType, recognised.length);
     }
 
     const assetTypeCountsWithLabel = Array.from(assetTypeCounts.entries()).map(([assetType, count]) => {
