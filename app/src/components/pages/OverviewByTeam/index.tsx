@@ -1,6 +1,6 @@
 import React from "react";
 import { groupByOwner, groupByAppName } from "../../../../../src/grouping/Grouper";
-import { ApplicationGroup } from "./ApplicationGroup";
+import { ApplicationGroup } from "../../elements/ApplicationGroup";
 import "./index.css"
 
 type OverviewByTeamProps = { subscriptionAndResources: SubscriptionAndResources | null; };
@@ -12,13 +12,12 @@ export function OverviewByTeam({ subscriptionAndResources }: OverviewByTeamProps
         return <></>;
     }
       
-    const subName = subscriptionAndResources.Subscription.displayName;
-    const firstSub = subscriptionAndResources.Resources;
-    const grouped: SingleSubscriptionGroupedByTeam = groupByOwner(firstSub);
+    const { Subscription: subscription, Resources: resources } = subscriptionAndResources;
+    const grouped: SingleSubscriptionGroupedByTeam = groupByOwner(resources);
 
     return (
         <div id="overview-page">
-            <Subscription subscriptionName={subName} subscriptionData={grouped} />
+            <Subscription subscriptionName={subscription.displayName} subscriptionData={grouped} />
         </div>
     );
 }
