@@ -14,3 +14,17 @@ export function groupByOwner(data: any[]) {
     return grouped;
 
 }
+
+export function groupByAppName(data: any[]) {
+    return data.reduce((acc: { [x: string]: any[]; }, cur: { tags: any; }) => {
+        const tags = cur.tags;
+        const app = tags?.application;
+        if (app) {
+            if (!acc[app]) {
+                acc[app] = [];
+            }
+            acc[app].push(cur);
+        }
+        return acc;
+    }, {} as any);
+}
