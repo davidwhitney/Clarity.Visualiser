@@ -1,7 +1,29 @@
+import { ArchitectureDiagram } from "../pages/ArchitectureDiagram";
+import { OverviewByComponent } from "../pages/OverviewByComponent";
+import { OverviewByTeam } from "../pages/OverviewByTeam";
+import { OverviewByWebApp } from "../pages/OverviewByWebApp";
+
+export function selectVisualisation(visualisationKey: string, selectedSub: SubscriptionAndResources | null) {
+    switch (visualisationKey) {
+        case 'OverviewByTeam':
+            return <OverviewByTeam subscriptionAndResources={selectedSub} />;
+        case 'OverviewByComponent':
+            return <OverviewByComponent subscriptionAndResources={selectedSub} />;
+        case 'OverviewByWebApp':
+            return <OverviewByWebApp subscriptionAndResources={selectedSub} />;
+        case 'ArchitectureDiagram':
+            return <ArchitectureDiagram subscriptionAndResources={selectedSub} />;
+        default:
+            return <></>;
+    }
+}
+
 export function VisualisationDropdown({ onChange }: { onChange: (visualisation: string) => void; }) {
     const options = [
         { value: 'OverviewByTeam', label: 'Overview By Team' },
-        { value: 'visualisation-2', label: 'Visualisation 2' },
+        { value: 'OverviewByComponent', label: 'Overview By Component' },
+        { value: 'OverviewByWebApp', label: 'Overview By Web App' },
+        { value: 'ArchitectureDiagram', label: 'Architecture Diagram' },
     ];
 
     const elements = options.map((option) => {

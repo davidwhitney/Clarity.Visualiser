@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { OverviewByTeam } from './components/pages/OverviewByTeam/index';
+import { OverviewByComponent } from './components/pages/OverviewByComponent/index';
 import { SubscriptionSelector } from './components/elements/SubscriptionSelector';
-import { VisualisationDropdown } from './components/elements/VisualisationDropdown';
+import { VisualisationDropdown, selectVisualisation as renderVisualisation } from './components/elements/VisualisationDropdown';
+import { OverviewByWebApp } from './components/pages/OverviewByWebApp';
+import { ArchitectureDiagram } from './components/pages/ArchitectureDiagram';
 import './App.css';
 
 export default function App() {
@@ -18,18 +21,9 @@ export default function App() {
         })();
     }, []);
 
-    const getActiveVisualisation = () => {
-        switch (selectedVisualisation) {
-            case 'OverviewByTeam':
-                return <OverviewByTeam subscriptionAndResources={selectedSub} />;
-            default:
-                return <></>;
-        }        
-    };
-
     const selectedSub = apiData?.find((data) => data.Subscription.subscriptionId === selectedSubscription?.subscriptionId) || null;
     const subscriptions = apiData?.map((data) => data.Subscription) || [];
-    const overviewOrEmpty = apiData ? getActiveVisualisation() : <></>;
+    const overviewOrEmpty = apiData ? renderVisualisation(selectedVisualisation, selectedSub) : <></>;
 
     return (
         <>

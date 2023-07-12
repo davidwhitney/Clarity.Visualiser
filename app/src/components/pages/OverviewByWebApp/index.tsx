@@ -3,10 +3,10 @@ import { groupByAppName } from "../../../../../src/grouping/Grouper";
 import { ApplicationGroup } from "../../elements/ApplicationGroup";
 import "./index.css"
 
-type OverviewByComponentProps = { subscriptionAndResources: SubscriptionAndResources | null; };
+type OverviewByWebAppProps = { subscriptionAndResources: SubscriptionAndResources | null; };
 type SubscriptionProps = { subscriptionName: string; subscriptionData: any[]; };
 
-export function OverviewByComponent({ subscriptionAndResources }: OverviewByComponentProps) {
+export function OverviewByWebApp({ subscriptionAndResources }: OverviewByWebAppProps) {
     if (!subscriptionAndResources) {
         return <></>;
     }

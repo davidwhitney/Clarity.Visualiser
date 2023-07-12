@@ -1,0 +1,46 @@
+.subscription {    
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.app {
+    border: 5px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+    background-color: #f2f2f2;
+
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+.team-boundary {
+    display: flex;
+    flex-direction: column;
+
+    border: dotted 2px #000;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+}
+
+.team-components {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: left;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    list-style-type: none;
+    padding: 2px;
+}
+
+i {
+    padding-right: 5px;
+}
