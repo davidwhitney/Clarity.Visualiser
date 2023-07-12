@@ -1,12 +1,12 @@
 import React from "react";
-import { groupByAppName } from "../../../../../src/grouping/Grouper";
-import { ApplicationGroup } from "../../elements/ApplicationGroup";
+import { groupByAppName } from "../../../../../../src/grouping/Grouper";
+import { ApplicationGroup } from "../../../elements/ApplicationGroup";
 import "./index.css"
 
-type ArchitectureDiagramProps = { subscriptionAndResources: SubscriptionAndResources | null; };
+type OverviewByWebAppProps = { subscriptionAndResources: SubscriptionAndResources | null; };
 type SubscriptionProps = { subscriptionName: string; subscriptionData: any[]; };
 
-export function ArchitectureDiagram({ subscriptionAndResources }: ArchitectureDiagramProps) {
+export function OverviewByWebApp({ subscriptionAndResources }: OverviewByWebAppProps) {
     if (!subscriptionAndResources) {
         return <></>;
     }

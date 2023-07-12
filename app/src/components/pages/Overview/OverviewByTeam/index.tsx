@@ -1,6 +1,6 @@
 import React from "react";
-import { groupByOwner, groupByAppName } from "../../../../../src/grouping/Grouper";
-import { ApplicationGroup } from "../../elements/ApplicationGroup";
+import { groupByOwner, groupByAppName } from "../../../../../../src/grouping/Grouper";
+import { ApplicationGroup } from "../../../elements/ApplicationGroup";
 import "./index.css"
 
 type OverviewByTeamProps = { subscriptionAndResources: SubscriptionAndResources | null; };

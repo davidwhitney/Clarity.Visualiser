@@ -1,7 +1,7 @@
-import { ArchitectureDiagram } from "../pages/ArchitectureDiagram";
-import { OverviewByComponent } from "../pages/OverviewByComponent";
-import { OverviewByTeam } from "../pages/OverviewByTeam";
-import { OverviewByWebApp } from "../pages/OverviewByWebApp";
+import { ArchitectureDiagram } from "../pages/Overview/ArchitectureDiagram";
+import { OverviewByComponent } from "../pages/Overview/OverviewByComponent";
+import { OverviewByTeam } from "../pages/Overview/OverviewByTeam";
+import { OverviewByWebApp } from "../pages/Overview/OverviewByWebApp";
 
 export function selectVisualisation(visualisationKey: string, selectedSub: SubscriptionAndResources | null) {
     switch (visualisationKey) {
