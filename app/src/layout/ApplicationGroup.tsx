@@ -9,7 +9,14 @@ export function ApplicationGroup(props: {appName: string, apps: any[]}) {
         const recognised = props.apps.filter((asset: any) => {
             const lowercaseKnownAssetType = assetType.toLowerCase();
             const lowercaseAssetType = asset.type.toLowerCase();
-            return lowercaseAssetType.startsWith(lowercaseKnownAssetType);
+
+            if (lowercaseKnownAssetType.endsWith("/")) {
+                return lowercaseAssetType.startsWith(lowercaseKnownAssetType);
+
+            } else {                
+                return lowercaseKnownAssetType === lowercaseAssetType;
+            }
+
         });
 
         assetTypeCounts.set(assetType, recognised.length);
