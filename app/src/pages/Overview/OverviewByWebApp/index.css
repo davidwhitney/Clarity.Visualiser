@@ -14,6 +14,24 @@
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
+.app-contents {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.app-service-plan {
+    margin: 5px;
+    margin-bottom: 50px;
+    width: 20vw;
+    overflow-wrap: break-word;
+}
+
+.app-service-plan pre {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+
 .team-boundary {
     display: flex;
     flex-direction: column;

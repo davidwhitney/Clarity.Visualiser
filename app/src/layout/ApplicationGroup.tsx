@@ -4,71 +4,40 @@ import { assetTypeGlyphs, knownAssetType } from "../metadata";
 export function ApplicationGroup(props: {appName: string, apps: any[]}) {
     const totalResourceCount = props.apps.length;
     const assetTypeCounts = new Map<string, number>();
+    const unknowns: any[] = [];
 
-    for (const assetType of knownAssetType.keys()) {
-        const recognised = props.apps.filter((asset: any) => {
-            const lowercaseKnownAssetType = assetType.toLowerCase();
-            const lowercaseAssetType = asset.type.toLowerCase();
+    for (let app of props.apps) {
+        const category = getMatchingType(app.type);
+        app.category = category;
 
-            if (lowercaseKnownAssetType.endsWith("/")) {
-                return lowercaseAssetType.startsWith(lowercaseKnownAssetType);
+        if (category === "Other") {
+            unknowns.push(app);
+        }   
 
-            } else {                
-                return lowercaseKnownAssetType === lowercaseAssetType;
-            }
-
-        });
-
-        assetTypeCounts.set(assetType, recognised.length);
+        if (!assetTypeCounts.has(app.category)) {
+            assetTypeCounts.set(app.category, 0);
+        }   
+        
+        assetTypeCounts.set(app.category, assetTypeCounts.get(app.category)! + 1);               
     }
 
+    const unknownNames = unknowns.map((asset) => { return asset.type; });
     const assetTypeCountsWithLabel = Array.from(assetTypeCounts.entries()).map(([assetType, count]) => {
-        const fontAwesomeGlyph = assetTypeGlyphs.get(assetType)?.toString() || "";
-
         if (count === 0) {
             return <></>;
         }
 
+        const assetLabel = knownAssetType.get(assetType);
+        const assetIcon = assetTypeGlyphs.get(assetType);
+
         return (
             <li>
-                <i className={fontAwesomeGlyph}></i>
-                {count} {knownAssetType.get(assetType)}
+                <i className={assetIcon}></i>
+                {count} {assetLabel}
             </li>
         );
     });
 
-    const countOfEverythingElse = props.apps.length - Array.from(assetTypeCounts.values()).reduce((acc, cur) => acc + cur, 0);
-    if (countOfEverythingElse > 0) {
-        assetTypeCountsWithLabel.push(
-            <li>
-                <i className="fas fa-question"></i>
-                {countOfEverythingElse} Other
-            </li>
-        );
-    }
-
-    const resourcesOfUnknownType: string[] = [];
-    for (let resource of props.apps) {
-
-        let isKnownResourceType = false;
-        for (let knownResourceType of knownAssetType.keys()) {
-            const lowercaseKnownResourceType = knownResourceType.toLowerCase();
-            const lowercaseResourceType = resource.type.toLowerCase();
-            if (lowercaseResourceType.startsWith(lowercaseKnownResourceType)) {
-                isKnownResourceType = true;
-                break;
-            }                
-        }
-
-        if (!isKnownResourceType) {
-            resourcesOfUnknownType.push(resource);
-        }
-        
-    }
-
-    const namesOfOtherResources = resourcesOfUnknownType.map((asset: any) => {
-        return asset.type;
-    });
 
     return (
         <div className="app"> 
@@ -78,9 +47,26 @@ export function ApplicationGroup(props: {appName: string, apps: any[]}) {
                     {assetTypeCountsWithLabel}
                 </ul>
                 <ul>
-                    {namesOfOtherResources}
+                    {unknownNames.join(", ")}
                 </ul>
             </div>
         </div>
     );
+}
+
+
+function getMatchingType(resourceType: string) {
+    for (let knownResourceType of knownAssetType.keys()) {
+        const lowercaseKnownResourceType = knownResourceType.toLowerCase();
+        const lowercaseResourceType = resourceType.toLowerCase();
+        
+        if (lowercaseKnownResourceType.endsWith("/") && lowercaseResourceType.startsWith(lowercaseKnownResourceType)) {
+            return knownResourceType;
+
+        } else if (lowercaseKnownResourceType === lowercaseResourceType) {                
+            return knownResourceType;
+        }                
+    }
+
+    return "Other";
 }

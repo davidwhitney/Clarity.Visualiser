@@ -28,3 +28,20 @@ export function groupByAppName(data: any[]) {
         return acc;
     }, {} as any);
 }
+
+export function groupByDescriptionTag(sites: any){
+    return sites.reduce((acc: any, site: any) => {
+        const description = site.tags?.description;
+        if (!description) {
+            return acc;
+        }
+
+        if (!acc[description]) {
+            acc[description] = [];
+        }
+
+        acc[description].push(site);
+
+        return acc;
+    }, {});
+}

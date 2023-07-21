@@ -1,6 +1,5 @@
 import React from "react";
-import { groupByAppName } from "../../../../../src/grouping/Grouper";
-import { ApplicationGroup } from "../../../layout/ApplicationGroup";
+import { groupByAppName, groupByDescriptionTag } from "../../../../../src/grouping/Grouper";
 import "./index.css"
 
 type OverviewByWebAppProps = { subscriptionAndResources: SubscriptionAndResources | null; };
@@ -28,8 +27,12 @@ function Subscription({ subscriptionName, subscriptionData }: SubscriptionProps)
 
     const applicationGroups = Object.keys(apps).map((app: string) => {
         const applicationGroup = apps[app];
-        return <ApplicationGroup key={applicationGroup.id} appName={app} apps={applicationGroup} />;
+        return <ApplicationGroup key={applicationGroup.id} appName={app} resources={applicationGroup} />;
     });
+
+    if (applicationGroups.length === 0) {
+        return <></>;
+    }
 
     return (
         <div className="team-boundary">
@@ -40,4 +43,68 @@ function Subscription({ subscriptionName, subscriptionData }: SubscriptionProps)
             </div>
         </div>
     );
+}
+
+
+export function ApplicationGroup({ appName, resources }: {appName: string, resources: any[]}) {
+    const sites = resources.filter((app: any) => app.type.toLowerCase() === "microsoft.web/sites");
+    const groupedByDescriptionTag = groupByDescriptionTag(sites);
+
+    const pairs = Object.keys(groupedByDescriptionTag).map((description: string) => {
+        const sites = groupedByDescriptionTag[description];
+
+        const locations = [];
+        for (let i = 0; i < sites.length; i++) {
+            const site = sites[i];
+            
+            locations.push({
+                name: site.name,
+                location: site.location
+            });
+        }
+
+        return {
+            ...sites[0],
+            installations: locations
+        }
+    });
+
+    if (pairs.length === 0) {
+        return <></>;
+    }
+
+    return (
+        <div className="app"> 
+            <h2>{appName}</h2>
+            <div className="app-contents">
+                {pairs.map((site: any) => {
+                    return <WebSiteSet key={site.id} site={site} />;
+                })}
+            </div>
+        </div>
+    );
+}
+
+export function WebSiteSet({ site }: {site: any}) {   
+    const farmName = site.name;
+    const siteStub = farmName.substring(8);
+
+    const iconForEachInstallation = site.installations.map((installation: any) => {
+        return (<div>{installation.name} - {installation.location}</div>);
+    });
+
+    return (
+        <div className="app-service-plan">
+            <span>{site.tags?.description} v{site.tags?.buildVersion}{site.tags?.buildversion}</span>
+            <div>
+                <div>{siteStub}</div>
+                <div>Owner: {site.tags?.team}</div>
+                <div>Created: {site.tags?.createdDate}</div>
+                <div>Kind: {site.kind}</div>
+            </div>
+            <div>
+                {iconForEachInstallation}
+            </div>
+        </div>
+    )
 }
