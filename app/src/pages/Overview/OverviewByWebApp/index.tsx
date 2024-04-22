@@ -95,12 +95,13 @@ export function WebSiteSet({ site }: {site: any}) {
 
     return (
         <div className="app-service-plan">
-            <span>{site.tags?.description} v{site.tags?.buildVersion}{site.tags?.buildversion}</span>
+            <h3>{site.tags?.description}</h3>
+            <span>{site.tags?.buildVersion}{site.tags?.buildversion}</span>
             <div>
                 <div>{siteStub}</div>
-                <div>Owner: {site.tags?.team}</div>
-                <div>Created: {site.tags?.createdDate}</div>
-                <div>Kind: {site.kind}</div>
+                <div className="owner-name">Owner: {site.tags?.team}</div>
+                <div className="created-date">Created: {site.tags?.createdDate}</div>
+                <div className="kind">Kind: {site.kind}</div>
             </div>
             <div>
                 {iconForEachInstallation}

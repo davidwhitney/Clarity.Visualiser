@@ -6,7 +6,7 @@ import './App.css';
 export default function App() {
     const [apiData, setApiData] = useState<SubscriptionAndResources[] | null>(null);
     const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
-    const [selectedVisualisation, setSelectedVisualisation] = useState<string>('OverviewByTeam');
+    const [selectedVisualisation, setSelectedVisualisation] = useState<string>('ArchitectureDiagram');
 
     const updateAppData = async () => {
         const result = await fetch('/api/home');
