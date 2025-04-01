@@ -57,7 +57,7 @@ export default function({ chart  }: { chart: any }) {
 
     useEffect(() => {
         mermaid.contentLoaded();
-    });
+    }, [chart]);
     
     return (<>
     <h1>Mermaid</h1>

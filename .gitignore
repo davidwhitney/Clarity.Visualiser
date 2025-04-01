@@ -130,3 +130,5 @@ dist
 .pnp.*
 /api/cache.json
 /cache.json
+src/.DS_Store
+.DS_Store
