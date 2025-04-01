@@ -1,9 +1,18 @@
 type Props = {
     subscriptions: Subscription[];
     onSelect: (subscription: Subscription) => void;
+    showAllEnabled?: boolean;
+    showAllSubscriptions?: boolean;
+    onToggleShowAll?: (showAll: boolean) => void;
 };
 
-export function SubscriptionSelector({ subscriptions, onSelect }: Props) {
+export function SubscriptionSelector({ 
+    subscriptions, 
+    onSelect, 
+    showAllEnabled = false,
+    showAllSubscriptions = false,
+    onToggleShowAll = () => {}
+}: Props) {
     if (!subscriptions || subscriptions.length === 0) {
         return <></>;
     }
@@ -22,11 +31,34 @@ export function SubscriptionSelector({ subscriptions, onSelect }: Props) {
         selectedSub && onSelect(selectedSub);
     };
 
+    const handleToggleShowAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onToggleShowAll(e.target.checked);
+    };
+
     return (
         <div className="subscription-dropdown-box">
-            <select onChange={onChangeHandler} name="subscriptions" title="subscriptions" className="subscription-dropdown">
+            <select 
+                onChange={onChangeHandler} 
+                name="subscriptions" 
+                title="subscriptions" 
+                className="subscription-dropdown"
+                disabled={showAllEnabled && showAllSubscriptions}
+            >
                 {subsDdl}
             </select>
+            
+            {showAllEnabled && (
+                <div className="show-all-subscriptions">
+                    <label>
+                        <input 
+                            type="checkbox" 
+                            checked={showAllSubscriptions} 
+                            onChange={handleToggleShowAll} 
+                        />
+                        Show all subscriptions
+                    </label>
+                </div>
+            )}
         </div>
     );
 }

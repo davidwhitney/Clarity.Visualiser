@@ -3,7 +3,11 @@ import { OverviewByComponent } from "../pages/Overview/OverviewByComponent";
 import { OverviewByTeam } from "../pages/Overview/OverviewByTeam";
 import { OverviewByWebApp } from "../pages/Overview/OverviewByWebApp";
 
-export function selectVisualisation(visualisationKey: string, selectedSub: SubscriptionAndResources | null) {
+export function selectVisualisation(
+    visualisationKey: string, 
+    selectedSub: SubscriptionAndResources | null,
+    allSubscriptions: SubscriptionAndResources[] | null = null
+) {
     switch (visualisationKey) {
         case 'OverviewByTeam':
             return <OverviewByTeam subscriptionAndResources={selectedSub} />;
@@ -12,7 +16,10 @@ export function selectVisualisation(visualisationKey: string, selectedSub: Subsc
         case 'OverviewByWebApp':
             return <OverviewByWebApp subscriptionAndResources={selectedSub} />;
         case 'ArchitectureDiagram':
-            return <ArchitectureDiagram subscriptionAndResources={selectedSub} />;
+            return <ArchitectureDiagram 
+                subscriptionAndResources={selectedSub} 
+                allSubscriptionsAndResources={allSubscriptions} 
+            />;
         default:
             return <></>;
     }

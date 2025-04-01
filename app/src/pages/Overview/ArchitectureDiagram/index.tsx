@@ -1,7 +1,7 @@
 import React from "react";
 import { groupByAppName, groupByDescriptionTag } from "../../../../../src/grouping/Grouper";
 import "./index.css";
-import Mermaid from "../../../Mermaid";
+import D3Diagram, { D3Graph, D3Node, D3Edge } from "../../../D3Diagram";
 
 // Define proper types for our data
 type AzureResource = {
@@ -42,104 +42,206 @@ type GroupedResource = {
 };
 
 type ArchitectureDiagramProps = { 
-  subscriptionAndResources: SubscriptionAndResources | null; 
+  subscriptionAndResources: SubscriptionAndResources | null;
+  allSubscriptionsAndResources?: SubscriptionAndResources[] | null;
 };
 
-export function ArchitectureDiagram({ subscriptionAndResources }: ArchitectureDiagramProps) {
-  if (!subscriptionAndResources) {
+export function ArchitectureDiagram({ 
+  subscriptionAndResources,
+  allSubscriptionsAndResources
+}: ArchitectureDiagramProps) {
+  // Choose which data source to use
+  const useAllSubscriptions = allSubscriptionsAndResources && allSubscriptionsAndResources.length > 0;
+  
+  if (!subscriptionAndResources && !useAllSubscriptions) {
     return <></>;
   }
       
-  const { Subscription: subscription, Resources: resources } = subscriptionAndResources;
-
-  const header = `C4Context
-title Azure Architecture Overview
-`;
+  // Convert the data to D3 format - either all subs or just the selected one
+  const d3Data = useAllSubscriptions
+    ? convertAllSubscriptionsToD3Format(allSubscriptionsAndResources!)
+    : convertToD3Format(subscriptionAndResources!.Subscription, subscriptionAndResources!.Resources);
   
   return (
     <div id="architecture-diagram">
-      <Mermaid chart={header + renderSubscription(subscription, resources)} />
+      <D3Diagram data={d3Data} />
     </div>
   );
 }
 
-// Component for rendering a subscription
-function renderSubscription(subscription: Subscription, resources: AzureResource[]): string {
-  const id = `subscription-${subscription.displayName.replace(/\s+/g, '-')}`;
-  const apps = groupByAppName(resources);
+// Function to convert all subscriptions data to D3 format
+function convertAllSubscriptionsToD3Format(allSubs: SubscriptionAndResources[]): D3Graph {
+  const graph: D3Graph = {
+    nodes: [],
+    edges: []
+  };
   
-  const applicationGroups = Object.keys(apps)
-    .map(appName => renderApplicationGroup(appName, apps[appName]))
-    .filter(group => group.length > 0)
-    .join("\n\t");
-    
-  if (!applicationGroups) {
-    return "";
-  }
-
-  return `Boundary(${id}, "${subscription.displayName}", "Azure Subscription") {
-    ${applicationGroups}
-  }`;
-}
-
-// Component for rendering an application group
-function renderApplicationGroup(appName: string, resources: AzureResource[]): string {
-  const sites = resources.filter(resource => resource.type.toLowerCase() === "microsoft.web/sites");
-  
-  if (sites.length === 0) {
-    return "";
-  }
-  
-  const groupedByDescriptionTag = groupByDescriptionTag(sites);
-  const groupId = `app-${appName.replace(/\s+/g, '-')}`;
-  
-  // Group resources with the same description across different regions
-  const groupedResources = Object.keys(groupedByDescriptionTag).map(description => {
-    const resourcesWithSameDescription = groupedByDescriptionTag[description];
-    
-    const installations = resourcesWithSameDescription.map((site: { name: any; location: any; }) => ({
-      name: site.name,
-      location: site.location
-    }));
-    
-    return {
-      ...resourcesWithSameDescription[0],
-      installations
-    } as GroupedResource;
+  // Add a "Cloud" root node to contain all subscriptions
+  graph.nodes.push({
+    id: "azure-cloud",
+    name: "Azure Cloud",
+    description: "All Azure Resources",
+    type: "boundary"
   });
   
-  if (groupedResources.length === 0) {
-    return "";
-  }
+  // Process each subscription
+  allSubs.forEach(subData => {
+    const { Subscription: subscription, Resources: resources } = subData;
+    
+    // Add subscription as a boundary
+    const subscriptionId = sanitizeId(subscription.displayName);
+    graph.nodes.push({
+      id: subscriptionId,
+      name: subscription.displayName,
+      description: "Azure Subscription",
+      type: "boundary",
+      parent: "azure-cloud" // Connect to the cloud root node
+    });
+    
+    // Get applications grouped by app name
+    const apps = groupByAppName(resources);
+    
+    // Process each application
+    Object.keys(apps).forEach(appName => {
+      const appResources = apps[appName];
+      const sites = appResources.filter(resource => resource.type.toLowerCase() === "microsoft.web/sites");
+      
+      if (sites.length === 0) return;
+      
+      // Create application group as a boundary - include subscription in ID to avoid conflicts
+      const appId = `app-${subscriptionId}-${sanitizeId(appName)}`;
+      graph.nodes.push({
+        id: appId,
+        name: appName,
+        description: "Application Group",
+        type: "boundary",
+        parent: subscriptionId
+      });
+      
+      // Group resources with the same description
+      const groupedByDescriptionTag = groupByDescriptionTag(sites);
+      
+      // Process each description group
+      Object.keys(groupedByDescriptionTag).forEach(description => {
+        const resourcesWithSameDescription = groupedByDescriptionTag[description];
+        
+        // Group installations by location
+        const installations = resourcesWithSameDescription.map(site => ({
+          name: site.name,
+          location: site.location
+        }));
+        
+        // Create a consolidated resource
+        const resource = resourcesWithSameDescription[0];
+        // Include subscription and app in ID to avoid conflicts across subscriptions
+        const resourceId = `${subscriptionId}-${appId}-${sanitizeId(resource.name)}`;
+        const resourceDescription = resource.tags.description || resource.name;
+        
+        // Get location information
+        const pairedRegions = groupPairedRegions(installations);
+        let locationInfo = "";
+        if (pairedRegions.length > 0) {
+          locationInfo = pairedRegions.map(pair => 
+            pair.regions.join(" + ")
+          ).join(", ");
+        } else if (installations.length > 0) {
+          locationInfo = installations.map(i => i.location).join(", ");
+        }
+        
+        // Add the resource as a system node
+        graph.nodes.push({
+          id: resourceId,
+          name: resourceDescription,
+          description: resource.name,
+          locations: locationInfo,
+          type: "system",
+          parent: appId
+        });
+      });
+    });
+  });
   
-  const systemComponents = groupedResources.map(resource => renderResource(resource)).join("\n\t");
-  
-  return `Boundary(${groupId}, "${appName}", "Application Group") {
-    ${systemComponents}
-  }`;
+  return graph;
 }
 
-// Component for rendering a resource with region pairing
-function renderResource(resource: GroupedResource): string {
-  const description = resource.tags.description || resource.name;
-  const installations = resource.installations || [];
+// Function to convert data to D3 format for a single subscription
+function convertToD3Format(subscription: Subscription, resources: AzureResource[]): D3Graph {
+  const graph: D3Graph = {
+    nodes: [],
+    edges: []
+  };
   
-  // Generate a stable ID from the resource name
-  const id = resource.name.replace(/[^a-zA-Z0-9]/g, '');
+  // Add subscription as a boundary
+  const subscriptionId = sanitizeId(subscription.displayName);
+  graph.nodes.push({
+    id: subscriptionId,
+    name: subscription.displayName,
+    description: "Azure Subscription",
+    type: "boundary"
+  });
   
-  // Group installations by paired regions
-  const pairedRegions = groupPairedRegions(installations);
+  // Get applications grouped by app name
+  const apps = groupByAppName(resources);
   
-  let locationInfo = "";
-  if (pairedRegions.length > 0) {
-    locationInfo = pairedRegions.map(pair => 
-      pair.regions.join(" + ")
-    ).join(", ");
-  } else if (installations.length > 0) {
-    locationInfo = installations.map(i => i.location).join(", ");
-  }
+  // Process each application
+  Object.keys(apps).forEach(appName => {
+    const appResources = apps[appName];
+    const sites = appResources.filter((resource: { type: string; }) => resource.type.toLowerCase() === "microsoft.web/sites");
+    
+    if (sites.length === 0) return;
+    
+    // Create application group as a boundary
+    const appId = `app-${sanitizeId(appName)}`;
+    graph.nodes.push({
+      id: appId,
+      name: appName,
+      description: "Application Group",
+      type: "boundary",
+      parent: subscriptionId
+    });
+    
+    // Group resources with the same description
+    const groupedByDescriptionTag = groupByDescriptionTag(sites);
+    
+    // Process each description group
+    Object.keys(groupedByDescriptionTag).forEach(description => {
+      const resourcesWithSameDescription = groupedByDescriptionTag[description];
+      
+      // Group installations by location
+      const installations = resourcesWithSameDescription.map((site: { name: any; location: any; }) => ({
+        name: site.name,
+        location: site.location
+      }));
+      
+      // Create a consolidated resource
+      const resource = resourcesWithSameDescription[0];
+      const resourceId = sanitizeId(resource.name);
+      const resourceDescription = resource.tags.description || resource.name;
+      
+      // Get location information
+      const pairedRegions = groupPairedRegions(installations);
+      let locationInfo = "";
+      if (pairedRegions.length > 0) {
+        locationInfo = pairedRegions.map(pair => 
+          pair.regions.join(" + ")
+        ).join(", ");
+      } else if (installations.length > 0) {
+        locationInfo = installations.map((i: { location: any; }) => i.location).join(", ");
+      }
+      
+      // Add the resource as a system node
+      graph.nodes.push({
+        id: resourceId,
+        name: resourceDescription,
+        description: resource.name,
+        locations: locationInfo,
+        type: "system",
+        parent: appId
+      });
+    });
+  });
   
-  return `System(${id}, "${description}", "${resource.name}\\n${locationInfo}")`;
+  return graph;
 }
 
 // Function to group resources into paired regions

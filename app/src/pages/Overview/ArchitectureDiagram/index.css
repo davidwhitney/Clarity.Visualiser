@@ -1,55 +1,70 @@
-.subscription {    
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+#architecture-diagram {
+  width: 80%;
+  height: 80vh;
+  margin: 20px auto;
+  overflow: hidden;
+  position: relative;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.arch-app {
-    border: 3px dotted rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 10px;
-    margin: 10px;
-    background-color: #f2f2f2;
-
+.d3-diagram {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #1d1e26;
 }
 
-.arch-app-contents {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-
-    border: 5px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 10px;
+.d3-diagram svg {
+  width: 100%;
+  height: 100%;
 }
 
-.subscription-boundary {
-    display: flex;
-    flex-direction: column;
-
-    border: solid 2px #000;
-    border-radius: 5px;
-    padding: 10px;
-    margin: 10px;
+/* Diagram title styling */
+.diagram-title {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #f8f8f2;
+  z-index: 10;
+  text-shadow: 0 1px 0 #000, 1px 0 0 #000, 0 -1px 0 #000, -1px 0 0 #000;
+  opacity: 0.8;
+  pointer-events: none;
 }
 
+/* Circle styling */
+.node {
+  cursor: pointer;
+  transition: stroke-width 0.2s, fill-opacity 0.2s;
+}
+
+.node:hover {
+  stroke-width: 2px;
+  fill-opacity: 0.8 !important;
+}
+
+.node--leaf {
+  cursor: pointer;
+}
+
+/* Text styling */
+text {
+  font-family: "Fira Code", monospace;
+  pointer-events: none;
+  text-shadow: 0 1px 0 #000, 1px 0 0 #000, 0 -1px 0 #000, -1px 0 0 #000;
+}
+
+.description, .location {
+  font-style: italic;
+}
+
+/* Hide any legacy styles */
+.subscription,
+.arch-app,
+.arch-app-contents,
+.subscription-boundary,
 .subscription-components {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: left;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-li {
-    list-style-type: none;
-    padding: 2px;
-}
-
-i {
-    padding-right: 5px;
+  display: none;
 }
