@@ -10,6 +10,7 @@ type D3Node = {
   parent?: string;
   locations?: string;
   value?: number; // For circle packing we need a value to determine size
+  tags?: string[]; // Added tags field for logical application grouping
 };
 
 type D3Edge = {
@@ -71,7 +72,9 @@ function renderCirclePackingDiagram(svgElement: SVGSVGElement, graph: D3Graph) {
     .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`)
     .style("display", "block")
     .style("background", "#1d1e26")
-    .style("cursor", "pointer");
+    .style("cursor", "pointer")
+    // Add minimum height to ensure visibility
+    .style("min-height", "600px");
   
   // Add a container for the entire diagram with zoom capabilities
   const g = svg.append("g");
@@ -96,7 +99,7 @@ function renderCirclePackingDiagram(svgElement: SVGSVGElement, graph: D3Graph) {
   const packedData = pack(root);
   
   let focus = root;
-  let view: [number, number, number] = [root.x, root.y, root.r * 2];
+  let view: [number, number, number] = [root.x, root.y, root.r * 2 + 50]; // Increase initial view size to zoom out
   
   // Create circles for each node
   const node = g.selectAll("circle")
@@ -104,10 +107,45 @@ function renderCirclePackingDiagram(svgElement: SVGSVGElement, graph: D3Graph) {
     .enter()
     .append("circle")
       .attr("class", d => d.children ? "node" : "node node--leaf")
-      .style("fill", d => d.children ? color(d.depth) : "#ff79c6")
+      .style("fill", d => {
+        // If it has children, use the depth-based color
+        if (d.children) {
+          return color(d.depth);
+        }
+        
+        // For leaf nodes, color based on tags if available
+        if (d.data.tags && d.data.tags.length > 0) {
+          if (d.data.tags.includes("Acquisitions")) {
+            return "#ff79c6"; // Pink for Acquisitions
+          } else if (d.data.tags.includes("Platform")) {
+            return "#50fa7b"; // Green for Platform
+          } else if (d.data.tags.includes("Critical") || d.data.tags.includes("Core")) {
+            return "#f1fa8c"; // Yellow for Critical/Core systems
+          }
+        }
+        
+        // Default color for other leaf nodes
+        return "#ff79c6";
+      })
       .style("fill-opacity", d => d.children ? 0.3 : 0.7)
-      .style("stroke", "#6272a4")
-      .style("stroke-width", d => d.depth === 0 ? 0 : 1)
+      .style("stroke", d => {
+        // Use different stroke color for tagged nodes
+        if (!d.children && d.data.tags && d.data.tags.length > 0) {
+          if (d.data.tags.includes("Critical") || d.data.tags.includes("Core")) {
+            return "#f1fa8c"; // Highlight critical systems
+          }
+        }
+        return "#6272a4";
+      })
+      .style("stroke-width", d => {
+        // Make stroke wider for critical systems
+        if (!d.children && d.data.tags && d.data.tags.length > 0) {
+          if (d.data.tags.includes("Critical") || d.data.tags.includes("Core")) {
+            return 2;
+          }
+        }
+        return d.depth === 0 ? 0 : 1;
+      })
       .on("click", (event, d) => {
         if (focus !== d) {
           zoom(event, d);
@@ -166,7 +204,39 @@ function renderCirclePackingDiagram(svgElement: SVGSVGElement, graph: D3Graph) {
   // Handle zoom events
   svg.on("click", (event) => zoom(event, root));
   
-  zoomTo([root.x, root.y, root.r * 2]);
+  // Add mouse wheel zoom functionality
+  svg.call(
+    d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.5, 8]) // Limit zoom scale: min 0.5x (zoomed out), max 8x (zoomed in)
+      .on("zoom", (event) => {
+        // Only handle wheel events for zoom
+        if (event.sourceEvent && event.sourceEvent.type === "wheel") {
+          // Get current transform
+          const transform = event.transform;
+          
+          // Calculate new view based on zoom scale
+          const scale = 1 / transform.k;
+          const newView: [number, number, number] = [
+            focus.x, 
+            focus.y, 
+            focus.r * 2 * scale
+          ];
+          
+          // Apply the zoom with animation
+          const t = d3.transition().duration(50);
+          g.transition(t as any);
+          zoomTo(newView);
+          
+          // Prevent page scrolling
+          if (event.sourceEvent) {
+            event.sourceEvent.preventDefault();
+          }
+        }
+      }) as any
+  );
+  
+  // Start with a zoomed-out view that shows everything
+  zoomTo([root.x, root.y, root.r * 2.5]); // Use 2.5 instead of 2 to zoom out a bit more
   
   // Helper function to determine if a label should be visible
   function shouldShowLabel(d: d3.HierarchyNode<any>, currentFocus: d3.HierarchyNode<any>): boolean {
@@ -189,7 +259,12 @@ function renderCirclePackingDiagram(svgElement: SVGSVGElement, graph: D3Graph) {
     const transition = g.transition()
       .duration(750)
       .tween("zoom", () => {
-        const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2]);
+        // If zooming to root, add extra padding to ensure everything is visible
+        const targetView = d === root ? 
+          [focus.x, focus.y, focus.r * 2.5] : // More padding for root view
+          [focus.x, focus.y, focus.r * 2];    // Normal zoom for other nodes
+        
+        const i = d3.interpolateZoom(view, targetView);
         return (t: number) => zoomTo(i(t));
       });
     
@@ -241,6 +316,12 @@ function renderCirclePackingDiagram(svgElement: SVGSVGElement, graph: D3Graph) {
   
   // Position all elements according to the zoom state
   function zoomTo(v: [number, number, number]) {
+    // Ensure we don't zoom in too close by limiting minimum view size
+    const minViewSize = Math.max(width, height) / 4;
+    if (v[2] < minViewSize) {
+      v[2] = minViewSize;
+    }
+    
     const k = width / v[2];
     view = v;
     
@@ -269,6 +350,7 @@ interface CirclePackNode {
   locations?: string;
   children?: CirclePackNode[];
   value?: number;
+  tags?: string[]; // Added tags field to match D3Node
 }
 
 function buildHierarchyForPacking(nodes: D3Node[]): CirclePackNode {
@@ -278,10 +360,28 @@ function buildHierarchyForPacking(nodes: D3Node[]): CirclePackNode {
     nodeMap.set(node.id, { ...node });
   });
   
-  // Assign placeholder values based on node type
+  // Assign values based on node type and tags
   nodes.forEach(node => {
     if (node.type === "system") {
-      node.value = 1; // Leaf nodes get a value of 1
+      // Base value for system nodes
+      let baseValue = 1;
+      
+      // Adjust value based on tags if present
+      if (node.tags && node.tags.length > 0) {
+        // Check for specific application tags and adjust size
+        if (node.tags.includes("Acquisitions")) {
+          baseValue = 3; // Make Acquisition systems larger
+        } else if (node.tags.includes("Platform")) {
+          baseValue = 4; // Make Platform systems even larger
+        }
+        
+        // Optionally adjust for other tag combinations
+        if (node.tags.includes("Critical") || node.tags.includes("Core")) {
+          baseValue += 1; // Add size for critical systems
+        }
+      }
+      
+      node.value = baseValue;
     }
   });
   
@@ -319,7 +419,8 @@ function buildHierarchyForPacking(nodes: D3Node[]): CirclePackNode {
       id: node.id,
       type: node.type,
       locations: node.locations,
-      value: node.type === "system" ? 1 : undefined
+      tags: node.tags, // Copy tags to hierarchy node
+      value: node.value // Use the value calculated above
     };
     
     // If this node has children, add them
